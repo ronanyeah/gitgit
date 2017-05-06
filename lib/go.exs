@@ -1,1 +1,2 @@
-IO.puts Gitgit.go
+Gitgit.start_link
+Gitgit.get_usernames

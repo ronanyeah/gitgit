@@ -4,6 +4,22 @@ defmodule Gitgit.Helpers do
   @token Application.get_env(:gitgit, :gitter_token)
   @headers ["Authorization": "Bearer #{@token}"]
 
+  def go do
+    case get_room(@room_id) do
+      {:ok, json} ->
+        offsets = split100(json["userCount"])
+
+        coordinator_pid = spawn(Gitgit.Processes, :coordinator, [[], Enum.count(offsets)])
+
+        offsets |> Enum.each(fn offset ->
+          worker_pid = spawn(Gitgit.Processes, :loop, [])
+          send worker_pid, {coordinator_pid, offset}
+        end)
+      {:error, reason} ->
+        "ERROR: #{inspect reason}"
+    end
+  end
+
   def split100(x) do
     range = 0..(div x, 100)
     Enum.map(range, fn x -> x * 100 end)

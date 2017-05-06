@@ -3,22 +3,50 @@ defmodule Gitgit do
   Scraping github profiles from gitter.
   """
 
-  @room_id Application.get_env(:gitgit, :gitter_room)
+  use GenServer
 
-  def go do
-    case Gitgit.Helpers.get_room(@room_id) do
-      {:ok, json} ->
-        offsets = Gitgit.Helpers.split100 json["userCount"]
+  @name GW
 
-        coordinator_pid = spawn(Gitgit.Coordinator, :loop, [[], Enum.count(offsets)])
+  ## Client API
 
-        offsets |> Enum.each(fn offset ->
-          worker_pid = spawn(Gitgit.Worker, :loop, [])
-          send worker_pid, {coordinator_pid, offset}
-        end)
-      {:error, reason} ->
-        "ERROR: #{inspect reason}"
-    end
+  def start_link(opts \\ []) do
+    GenServer.start_link(__MODULE__, :ok, opts ++ [name: GW])
+  end
+
+  def get_usernames do
+    GenServer.call(@name, {:usernames})
+  end
+
+  def add_results(data) do
+    GenServer.call(@name, {:add_results, data})
+  end
+
+  def stop do
+    GenServer.cast(@name, :stop)
+  end
+
+  ## Server Callbacks
+
+  def init(:ok) do
+    {:ok, []}
+  end
+
+  def handle_call({:add_results, data}, _from, state) do
+    {:reply, :ok, data ++ state}
+  end
+
+  def handle_call({:usernames}, _from, state) do
+    {:reply, Gitgit.Helpers.go, state}
+  end
+
+  def handle_cast(:stop, state) do
+    {:stop, :normal, state}
+  end
+
+  def terminate(reason, state) do
+    IO.puts "server terminated because of #{inspect reason}"
+    File.write("data.json", JSON.encode!(state))
+    :ok
   end
 
 end
