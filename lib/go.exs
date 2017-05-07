@@ -19,6 +19,7 @@ profiles =
      end)
   |> Gitgit.yield_and_parse_tasks
   |> Enum.map(&(Map.take(&1, ["name", "location", "email", "company", "login"])))
-  |> JSON.encode!
 
-File.write("data.json", profiles)
+json = JSON.encode!(profiles)
+
+File.write("data.json", json)

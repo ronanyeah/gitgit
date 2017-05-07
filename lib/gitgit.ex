@@ -21,7 +21,7 @@ defmodule Gitgit do
 
   def get_github_profile(username) do
     case HTTPoison.get!("https://api.github.com/users/#{username}", @github_headers) do
-      %{body: body, status_code: 200} ->
+      %{status_code: 200, body: body} ->
         body |> JSON.decode!
       %{status_code: 404} ->
         %{}
@@ -41,7 +41,7 @@ defmodule Gitgit do
 
   defp gitter_get(url) do
     case HTTPoison.get!(url, @gitter_headers) do
-      %{body: body, status_code: 200} ->
+      %{status_code: 200, body: body} ->
         body |> JSON.decode!
       _ ->
         raise "gitter request error"
