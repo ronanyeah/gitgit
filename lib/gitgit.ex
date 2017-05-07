@@ -7,8 +7,8 @@ defmodule Gitgit do
   @github_headers ["Authorization": "token #{Application.get_env(:gitgit, :github_token)}"]
 
   def split100(x) do
-    range = 0..(div x, 100)
-    Enum.map(range, fn x -> x * 100 end)
+    0..(div x, 100)
+    |> Enum.map(&(&1 * 100))
   end
 
   def get_gitter_room(room_id) do
@@ -28,15 +28,6 @@ defmodule Gitgit do
       _ ->
         raise "github request error"
     end
-  end
-
-  def yield_and_parse_tasks(tasks) do
-    tasks
-    |> Task.yield_many
-    |> Enum.map(fn {task, res} ->
-         res || Task.shutdown(task, :brutal_kill)
-       end)
-    |> Enum.map(fn {:ok, res} -> res end)
   end
 
   defp gitter_get(url) do
