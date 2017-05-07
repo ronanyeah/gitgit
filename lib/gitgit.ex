@@ -13,19 +13,20 @@ defmodule Gitgit do
   end
 
   def get_room do
-    "https://api.gitter.im/v1/rooms/#{@room_id}" |> HTTPoison.get(@headers) |> parse_response
+    "https://api.gitter.im/v1/rooms/#{@room_id}" |> get_json
   end
 
   def get_users(offset) do
-    "https://api.gitter.im/v1/rooms/#{@room_id}/users?limit=100&skip=#{offset}" |> HTTPoison.get(@headers) |> parse_response
+    "https://api.gitter.im/v1/rooms/#{@room_id}/users?limit=100&skip=#{offset}" |> get_json
   end
 
-  defp parse_response({:ok, %HTTPoison.Response{body: body, status_code: 200}}) do
-    body |> JSON.decode!
-  end
-
-  defp parse_response(_) do
-    raise "request error"
+  defp get_json(url) do
+    case HTTPoison.get!(url, @headers) do
+      %{body: body, status_code: 200} ->
+        body |> JSON.decode!
+      _ ->
+        raise "request error"
+    end
   end
 
 end
