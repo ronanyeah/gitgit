@@ -1,2 +1,2 @@
 # gitgit
-scraping gitter |> github using elixir
+scraping gitter |> github using purescript
