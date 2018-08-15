@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "format": "purty ./src/Main.purs --write"
+  },
+  "dependencies": {
+    "purty": "^3.0.3",
+    "xhr2": "^0.1.4"
+  }
+}
